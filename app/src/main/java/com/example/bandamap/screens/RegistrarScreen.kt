@@ -8,6 +8,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,7 +56,13 @@ fun RegistrarScreen(onVolver: () -> Unit) {
             Text("Comparte tu música en BandaMap. Los campos con * son obligatorios.")
 
             CampoTexto("Nombre de la banda *", nombre, { nombre = it }, nombreError)
-            CampoTexto("Género *", genero, { genero = it }, generoError)
+
+            CampoSeleccionGenero(
+                generoSeleccionado = genero,
+                onGeneroChange = { genero = it },
+                error = generoError
+            )
+
             CampoTexto("Ciudad *", ciudad, { ciudad = it }, ciudadError)
             CampoTexto("Descripción", descripcion, { descripcion = it }, false, unaLinea = false)
             CampoTexto("Enlace Spotify", spotify, { spotify = it }, false)
@@ -72,6 +83,65 @@ fun RegistrarScreen(onVolver: () -> Unit) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Guardar")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CampoSeleccionGenero(
+    generoSeleccionado: String,
+    onGeneroChange: (String) -> Unit,
+    error: Boolean
+) {
+    var expandido by remember { mutableStateOf(false) }
+    val opcionesGenero = listOf(
+        "Rock",
+        "Metal",
+        "Pop",
+        "Indie",
+        "Hip-Hop / Rap",
+        "Folk / Acústico",
+        "Punk",
+        "Jazz / Blues",
+        "Electrónica",
+        "Otro"
+    )
+
+    ExposedDropdownMenuBox(
+        expanded = expandido,
+        onExpandedChange = { expandido = !expandido },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = generoSeleccionado,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Género *") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandido) },
+            isError = error,
+            supportingText = if (error) {
+                { Text("Este campo es obligatorio") }
+            } else null,
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(type = MenuAnchorType.PrimaryNotEditable)
+        )
+
+        ExposedDropdownMenu(
+            expanded = expandido,
+            onDismissRequest = { expandido = false }
+        ) {
+            opcionesGenero.forEach { opcion ->
+                DropdownMenuItem(
+                    text = { Text(opcion) },
+                    onClick = {
+                        onGeneroChange(opcion)
+                        expandido = false
+                    }
+                )
             }
         }
     }
