@@ -18,6 +18,11 @@ fun BarraSuperior(titulo: String, onVolver: (() -> Unit)? = null) {
                     Text("←", style = MaterialTheme.typography.titleLarge)
                 }
             }
-        }
+        },
+        colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary,
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+        )
     )
 }

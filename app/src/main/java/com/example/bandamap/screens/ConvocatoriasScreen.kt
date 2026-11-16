@@ -8,77 +8,94 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bandamap.components.BarraSuperior
 import com.example.bandamap.components.ConvocatoriaCard
 import com.example.bandamap.model.Banda
 import com.example.bandamap.model.Convocatoria
-import com.example.bandamap.model.DatosPrueba
+import com.example.bandamap.viewmodel.ConvocatoriasViewModel
 
 @Composable
-fun ConvocatoriasScreen(onVolver: () -> Unit, onNuevaConvocatoria: () -> Unit) {
+fun ConvocatoriasScreen(
+    onVolver: () -> Unit,
+    onNuevaConvocatoria: () -> Unit,
+    viewModel: ConvocatoriasViewModel = viewModel()
+) {
     val context = LocalContext.current
 
-    // Guarda la convocatoria a la que se quiere postular. Si es null, el diálogo no se muestra.
-    var convocatoriaSeleccionada by remember { mutableStateOf<Convocatoria?>(null) }
+    // Observamos los estados desde el ViewModel
+    val convocatorias by viewModel.convocatorias.collectAsState()
+    val convocatoriaSeleccionada by viewModel.convocatoriaSeleccionada.collectAsState()
 
     Scaffold(
         topBar = { BarraSuperior("Convocatorias", onVolver) },
         floatingActionButton = {
             FloatingActionButton(onClick = onNuevaConvocatoria) {
-                Text("+", style = MaterialTheme.typography.headlineSmall)
+                // Usamos un ícono estándar de Material en lugar de texto "+"
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Nueva Convocatoria")
             }
         }
     ) { padding ->
-        Column(modifier = Modifier.padding(padding).padding(16.dp)) {
-            Text("Encuentra un escenario para tu banda.")
-            Spacer(modifier = Modifier.height(8.dp))
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                // Espacio al final para que el botón "+" no tape la última tarjeta
-                contentPadding = PaddingValues(bottom = 80.dp)
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Encuentra un escenario para tu banda.",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Reemplazamos LazyColumn por LazyVerticalGrid para soportar tablets
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 340.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                // Espacio al final para que el FAB no tape la última tarjeta
+                contentPadding = PaddingValues(bottom = 88.dp)
             ) {
-                items(DatosPrueba.convocatorias, key = { it.id }) { convocatoria ->
+                items(convocatorias, key = { it.id }) { convocatoria ->
                     ConvocatoriaCard(
                         convocatoria = convocatoria,
-                        onPostular = { convocatoriaSeleccionada = convocatoria }
+                        onPostular = { viewModel.seleccionarConvocatoria(convocatoria) }
                     )
                 }
             }
         }
     }
 
+    // Diálogo de postulación
     convocatoriaSeleccionada?.let { convocatoria ->
         DialogoPostular(
             convocatoria = convocatoria,
+            misBandas = viewModel.misBandas,
             onElegirBanda = { banda ->
-                val exito = DatosPrueba.postular(convocatoria.id, banda.id)
-                val mensaje = if (exito) {
-                    "${banda.nombre} postuló a la convocatoria"
-                } else {
-                    "${banda.nombre} ya había postulado"
-                }
+                // El ViewModel maneja la lógica y nos devuelve el mensaje a mostrar
+                val mensaje = viewModel.postular(banda)
                 Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
-                convocatoriaSeleccionada = null
             },
-            onCancelar = { convocatoriaSeleccionada = null }
+            onCancelar = { viewModel.seleccionarConvocatoria(null) }
         )
     }
 }
@@ -86,6 +103,7 @@ fun ConvocatoriasScreen(onVolver: () -> Unit, onNuevaConvocatoria: () -> Unit) {
 @Composable
 private fun DialogoPostular(
     convocatoria: Convocatoria,
+    misBandas: List<Banda>,
     onElegirBanda: (Banda) -> Unit,
     onCancelar: () -> Unit
 ) {
@@ -93,15 +111,27 @@ private fun DialogoPostular(
         onDismissRequest = onCancelar,
         title = { Text("¿Con qué banda postulas?") },
         text = {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                Text(convocatoria.titulo, style = MaterialTheme.typography.bodySmall)
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Postulando a: ${convocatoria.titulo}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
                 Spacer(modifier = Modifier.height(8.dp))
-                DatosPrueba.bandas.forEach { banda ->
-                    TextButton(
-                        onClick = { onElegirBanda(banda) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("${banda.nombre} (${banda.genero})")
+
+                if (misBandas.isEmpty()) {
+                    Text("No tienes bandas registradas aún.")
+                } else {
+                    misBandas.forEach { banda ->
+                        TextButton(
+                            onClick = { onElegirBanda(banda) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("${banda.nombre} (${banda.genero})")
+                        }
                     }
                 }
             }
