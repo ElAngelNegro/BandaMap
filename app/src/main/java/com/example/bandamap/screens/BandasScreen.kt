@@ -2,10 +2,17 @@ package com.example.bandamap.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -15,9 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.bandamap.components.BandaCard
 import com.example.bandamap.components.BarraSuperior
+import com.example.bandamap.components.EncabezadoSeccion
 import com.example.bandamap.model.DatosPrueba
 
 @Composable
@@ -25,22 +34,45 @@ fun BandasScreen(onBandaClick: (Int) -> Unit, onVolver: () -> Unit) {
     var busqueda by remember { mutableStateOf("") }
 
     val bandasFiltradas = DatosPrueba.bandas.filter {
-        it.nombre.contains(busqueda, ignoreCase = true)
+        it.nombre.contains(busqueda, ignoreCase = true) ||
+            it.genero.contains(busqueda, ignoreCase = true) ||
+            it.ciudad.contains(busqueda, ignoreCase = true)
     }
 
     Scaffold(topBar = { BarraSuperior("Bandas", onVolver) }) { padding ->
-        Column(modifier = Modifier.padding(padding).padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            EncabezadoSeccion(
+                badge = "Catálogo Nacional",
+                titulo = "Bandas y Artistas",
+                subtitulo = "Explora proyectos musicales de Chile por nombre, género o ciudad."
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             OutlinedTextField(
                 value = busqueda,
                 onValueChange = { busqueda = it },
-                label = { Text("Buscar bandas") },
+                label = { Text("Buscar bandas, géneros o ciudades...") },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
+                },
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth()
             )
+
             Text(
-                "${bandasFiltradas.size} bandas para descubrir",
-                modifier = Modifier.padding(vertical = 8.dp)
+                text = "${bandasFiltradas.size} bandas encontradas",
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(vertical = 10.dp)
             )
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(bandasFiltradas, key = { it.id }) { banda ->
                     BandaCard(banda = banda, onClick = { onBandaClick(banda.id) })
                 }

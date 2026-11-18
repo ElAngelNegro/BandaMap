@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bandamap.components.BarraSuperior
+import com.example.bandamap.components.EncabezadoSeccion
 import com.example.bandamap.viewmodel.NuevaConvocatoriaViewModel
 
 @Composable
@@ -55,18 +56,13 @@ fun NuevaConvocatoriaScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Publica una convocatoria para armar tu tocata",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = "Los campos marcados con * son obligatorios.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            EncabezadoSeccion(
+                badge = "Publicar Aviso",
+                titulo = "Nueva Convocatoria",
+                subtitulo = "Arma tu tocata y encuentra bandas o músicos colaboradores. Los campos con * son obligatorios."
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             CampoFormularioIcono(
                 etiqueta = "Título * (ej: Se buscan 2 bandas de metal)",
