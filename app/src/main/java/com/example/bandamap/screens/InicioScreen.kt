@@ -73,34 +73,62 @@ fun InicioScreen(
 
                 Button(
                     onClick = onExplorarBandas,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(54.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    border = BorderStroke(2.dp, RedLight),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = RedPrimary,
+                        contentColor = Color.White
+                    )
                 ) {
-                    Text("Explorar bandas", fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Explorar bandas",
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.2.sp
+                    )
                 }
 
                 OutlinedButton(
                     onClick = onConvocatorias,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.7f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(54.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    border = BorderStroke(2.dp, Color.White),
                     colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.Black.copy(alpha = 0.45f),
                         contentColor = Color.White
                     )
                 ) {
-                    Text("Convocatorias", fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = "Convocatorias",
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.2.sp
+                    )
                 }
 
                 OutlinedButton(
                     onClick = onRegistrarBanda,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.7f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(54.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    border = BorderStroke(2.dp, Color.White),
                     colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.Black.copy(alpha = 0.45f),
                         contentColor = Color.White
                     )
                 ) {
-                    Text("Registrar mi banda", fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = "Registrar mi banda",
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.2.sp
+                    )
                 }
             }
         }
