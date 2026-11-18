@@ -45,12 +45,14 @@ fun ConvocatoriaCard(
                 style = MaterialTheme.typography.bodyMedium
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = convocatoria.descripcion,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            // La descripción es opcional: solo se muestra si tiene texto
+            if (convocatoria.descripcion.isNotBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = convocatoria.descripcion,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -62,7 +64,11 @@ fun ConvocatoriaCard(
                 val cuposDisponibles = convocatoria.cupos - convocatoria.postulantes.size
                 
                 Text(
-                    text = if (cuposDisponibles > 0) "$cuposDisponibles cupos disponibles" else "Cupos llenos",
+                    text = when (cuposDisponibles) {
+                        0 -> "Cupos llenos"
+                        1 -> "1 cupo disponible"
+                        else -> "$cuposDisponibles cupos disponibles"
+                    },
                     style = MaterialTheme.typography.labelLarge,
                     color = if (cuposDisponibles > 0) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.error,
                     modifier = Modifier.weight(1f)

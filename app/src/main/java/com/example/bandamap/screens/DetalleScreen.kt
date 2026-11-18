@@ -1,7 +1,9 @@
 package com.example.bandamap.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -19,6 +21,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -56,16 +59,33 @@ fun DetalleScreen(bandaId: Int, onVolver: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
-                // Imagen "Hero" usando Coil
-                AsyncImage(
-                    model = banda.imagenUrl,
-                    contentDescription = "Foto destacada de ${banda.nombre}",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(240.dp)
-                        .clip(RoundedCornerShape(16.dp)),
-                    contentScale = ContentScale.Crop
-                )
+                // Imagen "Hero": si la banda tiene URL se carga con Coil;
+                // si no, se muestra un recuadro de reemplazo
+                if (banda.imagenUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = banda.imagenUrl,
+                        contentDescription = "Foto destacada de ${banda.nombre}",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(240.dp)
+                            .clip(RoundedCornerShape(16.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "Sin imagen",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
 
                 // Información de cabecera
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -89,15 +109,20 @@ fun DetalleScreen(bandaId: Int, onVolver: () -> Unit) {
                 // Enlaces Sociales
                 // Usamos FlowRow (layout adaptativo) por si los botones no caben en una línea
                 // en pantallas pequeñas, saltarán automáticamente a la siguiente.
-                Text("Escúchalos en", style = MaterialTheme.typography.titleMedium)
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    BotonEnlace("Spotify", banda.spotify) { uriHandler.openUri(it) }
-                    BotonEnlace("Instagram", banda.instagram) { uriHandler.openUri(it) }
-                    BotonEnlace("YouTube", banda.youtube) { uriHandler.openUri(it) }
+                // Solo mostramos la sección si la banda tiene al menos un enlace
+                val tieneEnlaces = banda.spotify.isNotBlank() ||
+                        banda.instagram.isNotBlank() || banda.youtube.isNotBlank()
+                if (tieneEnlaces) {
+                    Text("Escúchalos en", style = MaterialTheme.typography.titleMedium)
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        BotonEnlace("Spotify", banda.spotify) { uriHandler.openUri(it) }
+                        BotonEnlace("Instagram", banda.instagram) { uriHandler.openUri(it) }
+                        BotonEnlace("YouTube", banda.youtube) { uriHandler.openUri(it) }
+                    }
                 }
 
                 // Tarjeta de Tocatas

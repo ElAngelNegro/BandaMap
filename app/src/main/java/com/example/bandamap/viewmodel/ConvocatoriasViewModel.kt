@@ -21,6 +21,11 @@ class ConvocatoriasViewModel : ViewModel() {
     // Lista de bandas del usuario (para elegir con cuál postular)
     val misBandas = DatosPrueba.bandas
 
+    // Vuelve a leer la lista desde los datos (por ejemplo, al volver de "Nueva convocatoria")
+    fun recargar() {
+        _convocatorias.value = DatosPrueba.convocatorias.toList()
+    }
+
     fun seleccionarConvocatoria(convocatoria: Convocatoria?) {
         _convocatoriaSeleccionada.value = convocatoria
     }

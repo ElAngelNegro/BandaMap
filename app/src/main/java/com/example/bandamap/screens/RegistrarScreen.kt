@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bandamap.components.BarraSuperior
@@ -111,7 +112,8 @@ fun RegistrarScreen(
                 valor = formState.spotify,
                 onCambio = viewModel::onSpotifyChange,
                 icono = Icons.Default.PlayArrow,
-                error = false
+                error = false,
+                esEnlace = true
             )
 
             CampoTextoIcono(
@@ -119,7 +121,8 @@ fun RegistrarScreen(
                 valor = formState.instagram,
                 onCambio = viewModel::onInstagramChange,
                 icono = Icons.Default.Person,
-                error = false
+                error = false,
+                esEnlace = true
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -201,7 +204,8 @@ private fun CampoTextoIcono(
     onCambio: (String) -> Unit,
     icono: ImageVector,
     error: Boolean,
-    unaLinea: Boolean = true
+    unaLinea: Boolean = true,
+    esEnlace: Boolean = false
 ) {
     OutlinedTextField(
         value = valor,
@@ -213,7 +217,9 @@ private fun CampoTextoIcono(
         singleLine = unaLinea,
         modifier = Modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Sentences,
+            // Los enlaces no llevan mayúscula inicial y usan el teclado para URL
+            capitalization = if (esEnlace) KeyboardCapitalization.None else KeyboardCapitalization.Sentences,
+            keyboardType = if (esEnlace) KeyboardType.Uri else KeyboardType.Text,
             imeAction = if (unaLinea) ImeAction.Next else ImeAction.Default
         )
     )
