@@ -14,13 +14,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,17 +42,68 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.bandamap.components.BarraSuperior
-import com.example.bandamap.model.DatosPrueba
+import com.example.bandamap.viewmodel.DetalleViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DetalleScreen(bandaId: Int, onVolver: () -> Unit) {
-    // Obtenemos la banda y el handler de URI (para abrir links)
-    val banda = DatosPrueba.buscarPorId(bandaId)
+fun DetalleScreen(
+    bandaId: Int,
+    viewModel: DetalleViewModel,
+    onEditar: (Int) -> Unit,
+    onVolver: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val banda = uiState.banda
     val uriHandler = LocalUriHandler.current
+    var mostrarConfirmacion by remember { mutableStateOf(false) }
 
-    Scaffold(topBar = { BarraSuperior(banda?.nombre ?: "Banda", onVolver) }) { padding ->
-        if (banda == null) {
+    // Carga la banda desde Room
+    LaunchedEffect(bandaId) { viewModel.cargar(bandaId) }
+
+    // Cuando Room terminó de borrar, volvemos a la lista
+    LaunchedEffect(uiState.eliminada) {
+        if (uiState.eliminada) onVolver()
+    }
+
+    // Diálogo para confirmar antes de eliminar
+    if (mostrarConfirmacion && banda != null) {
+        AlertDialog(
+            onDismissRequest = { mostrarConfirmacion = false },
+            title = { Text("Eliminar banda") },
+            text = { Text("¿Seguro que quieres eliminar \"${banda.nombre}\"? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    mostrarConfirmacion = false
+                    viewModel.eliminar()
+                }) { Text("Eliminar", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarConfirmacion = false }) { Text("Cancelar") }
+            }
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            BarraSuperior(
+                titulo = banda?.nombre ?: "Banda",
+                onVolver = onVolver,
+                acciones = {
+                    if (banda != null) {
+                        IconButton(onClick = { onEditar(banda.id) }) {
+                            Icon(Icons.Default.Edit, contentDescription = "Editar banda")
+                        }
+                        IconButton(onClick = { mostrarConfirmacion = true }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Eliminar banda")
+                        }
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        if (uiState.cargando || uiState.eliminando) {
+            // Mientras carga o se elimina no mostramos contenido
+        } else if (banda == null) {
             Text(
                 "Banda no encontrada",
                 modifier = Modifier
@@ -48,7 +112,7 @@ fun DetalleScreen(bandaId: Int, onVolver: () -> Unit) {
                 color = MaterialTheme.colorScheme.error
             )
         } else {
-            val tocatas = DatosPrueba.tocatasDeBanda(banda.id)
+            val tocatas = uiState.tocatas
 
             Column(
                 modifier = Modifier

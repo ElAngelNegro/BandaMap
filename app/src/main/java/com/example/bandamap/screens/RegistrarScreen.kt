@@ -31,6 +31,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,19 +44,35 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bandamap.components.BarraSuperior
 import com.example.bandamap.viewmodel.RegistrarViewModel
 
 @Composable
 fun RegistrarScreen(
+    viewModel: RegistrarViewModel,
     onVolver: () -> Unit,
-    viewModel: RegistrarViewModel = viewModel()
+    bandaId: Int? = null          // null = registrar nueva, con valor = editar esa banda
 ) {
     val context = LocalContext.current
     val formState by viewModel.formState.collectAsState()
 
-    Scaffold(topBar = { BarraSuperior("Registrar banda", onVolver) }) { padding ->
+    // Modo edición: carga los datos de la banda en el formulario
+    LaunchedEffect(bandaId) {
+        if (bandaId != null) viewModel.cargarBanda(bandaId)
+    }
+
+    // Cuando Room terminó de guardar, avisamos y volvemos
+    LaunchedEffect(formState.guardado) {
+        if (formState.guardado) {
+            val mensaje = if (formState.esEdicion) "¡Banda actualizada!" else "¡Banda registrada exitosamente!"
+            Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
+            onVolver()
+        }
+    }
+
+    val titulo = if (bandaId != null) "Editar banda" else "Registrar banda"
+
+    Scaffold(topBar = { BarraSuperior(titulo, onVolver) }) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -64,7 +81,7 @@ fun RegistrarScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Comparte tu música en BandaMap",
+                text = if (bandaId != null) "Actualiza los datos de tu banda" else "Comparte tu música en BandaMap",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -129,10 +146,8 @@ fun RegistrarScreen(
 
             Button(
                 onClick = {
-                    if (viewModel.guardarBanda()) {
-                        Toast.makeText(context, "¡Banda registrada exitosamente!", Toast.LENGTH_SHORT).show()
-                        onVolver()
-                    } else {
+                    // Si es válido, guarda en Room y el LaunchedEffect de arriba vuelve atrás
+                    if (!viewModel.guardarBanda()) {
                         Toast.makeText(context, "Por favor, completa los campos obligatorios", Toast.LENGTH_SHORT).show()
                     }
                 },
@@ -140,7 +155,7 @@ fun RegistrarScreen(
                     .fillMaxWidth()
                     .height(56.dp) // Botón más grande y clickeable
             ) {
-                Text("Guardar Banda", style = MaterialTheme.typography.titleMedium)
+                Text(if (bandaId != null) "Guardar cambios" else "Guardar Banda", style = MaterialTheme.typography.titleMedium)
             }
 
             Spacer(modifier = Modifier.height(32.dp))

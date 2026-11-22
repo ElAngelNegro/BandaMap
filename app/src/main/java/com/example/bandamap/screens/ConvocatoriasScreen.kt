@@ -29,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bandamap.components.BarraSuperior
 import com.example.bandamap.components.ConvocatoriaCard
 import com.example.bandamap.model.Banda
@@ -40,13 +39,14 @@ import com.example.bandamap.viewmodel.ConvocatoriasViewModel
 fun ConvocatoriasScreen(
     onVolver: () -> Unit,
     onNuevaConvocatoria: () -> Unit,
-    viewModel: ConvocatoriasViewModel = viewModel()
+    viewModel: ConvocatoriasViewModel
 ) {
     val context = LocalContext.current
 
     // Observamos los estados desde el ViewModel
     val convocatorias by viewModel.convocatorias.collectAsState()
     val convocatoriaSeleccionada by viewModel.convocatoriaSeleccionada.collectAsState()
+    val misBandas by viewModel.misBandas.collectAsState()
 
     // Cada vez que esta pantalla se muestra (también al volver), recargamos la lista
     LaunchedEffect(Unit) {
@@ -95,7 +95,7 @@ fun ConvocatoriasScreen(
     convocatoriaSeleccionada?.let { convocatoria ->
         DialogoPostular(
             convocatoria = convocatoria,
-            misBandas = viewModel.misBandas,
+            misBandas = misBandas,
             onElegirBanda = { banda ->
                 // El ViewModel maneja la lógica y nos devuelve el mensaje a mostrar
                 val mensaje = viewModel.postular(banda)
