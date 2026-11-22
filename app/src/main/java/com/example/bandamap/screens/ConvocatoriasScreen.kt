@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.bandamap.components.BarraSuperior
 import com.example.bandamap.components.ConvocatoriaCard
+import com.example.bandamap.components.EncabezadoSeccion
 import com.example.bandamap.model.Banda
 import com.example.bandamap.model.Convocatoria
 import com.example.bandamap.viewmodel.ConvocatoriasViewModel
@@ -65,13 +66,14 @@ fun ConvocatoriasScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            Text(
-                text = "Encuentra un escenario para tu banda.",
-                style = MaterialTheme.typography.titleMedium
+            EncabezadoSeccion(
+                badge = "Comunidad Activa",
+                titulo = "Convocatorias",
+                subtitulo = "Encuentra fechas, festivales y escenarios disponibles para tocar."
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Reemplazamos LazyColumn por LazyVerticalGrid para soportar tablets
             LazyVerticalGrid(

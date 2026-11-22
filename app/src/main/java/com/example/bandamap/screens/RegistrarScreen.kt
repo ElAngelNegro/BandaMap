@@ -45,6 +45,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.bandamap.components.BarraSuperior
+import com.example.bandamap.components.EncabezadoSeccion
 import com.example.bandamap.viewmodel.RegistrarViewModel
 
 @Composable
@@ -80,18 +81,16 @@ fun RegistrarScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = if (bandaId != null) "Actualiza los datos de tu banda" else "Comparte tu música en BandaMap",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = "Los campos marcados con * son obligatorios.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            EncabezadoSeccion(
+                badge = if (bandaId != null) "Edita tu Proyecto" else "Suma tu Proyecto",
+                titulo = if (bandaId != null) "Editar Banda" else "Registrar Banda",
+                subtitulo = if (bandaId != null)
+                    "Actualiza los datos de tu banda. Los campos con * son obligatorios."
+                else
+                    "Comparte tu música con la comunidad de BandaMap. Los campos con * son obligatorios."
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             CampoTextoIcono(
                 etiqueta = "Nombre de la banda *",
