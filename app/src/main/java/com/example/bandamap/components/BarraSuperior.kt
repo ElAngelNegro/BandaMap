@@ -5,11 +5,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BarraSuperior(titulo: String, onVolver: (() -> Unit)? = null) {
+fun BarraSuperior(
+    titulo: String,
+    onVolver: (() -> Unit)? = null,
+    acciones: @Composable RowScope.() -> Unit = {}   // botones a la derecha (ej: cerrar sesión)
+) {
     TopAppBar(
         title = { Text(titulo) },
         navigationIcon = {
@@ -19,10 +24,12 @@ fun BarraSuperior(titulo: String, onVolver: (() -> Unit)? = null) {
                 }
             }
         },
+        actions = acciones,
         colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary,
-            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
         )
     )
 }

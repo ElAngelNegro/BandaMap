@@ -1,6 +1,8 @@
 package com.example.bandamap.navigation
 
 object Rutas {
+    const val LOGIN = "login"
+    const val REGISTRO = "registro"
     const val INICIO = "inicio"
     const val BANDAS = "bandas"
     const val DETALLE = "detalle/{bandaId}"
