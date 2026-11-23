@@ -18,9 +18,9 @@ class BandaMapViewModelFactory(
             modelClass.isAssignableFrom(DetalleViewModel::class.java) ->
                 DetalleViewModel(repository) as T
             modelClass.isAssignableFrom(RegistrarViewModel::class.java) ->
-                RegistrarViewModel() as T
+                RegistrarViewModel(repository) as T
             modelClass.isAssignableFrom(ConvocatoriasViewModel::class.java) ->
-                ConvocatoriasViewModel() as T
+                ConvocatoriasViewModel(repository) as T
             else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
         }
     }

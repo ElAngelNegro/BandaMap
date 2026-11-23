@@ -1,14 +1,18 @@
 package com.example.bandamap.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.bandamap.data.BandaRepository
 import com.example.bandamap.model.Banda
 import com.example.bandamap.model.Convocatoria
 import com.example.bandamap.model.DatosPrueba
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 
-class ConvocatoriasViewModel : ViewModel() {
+class ConvocatoriasViewModel(repository: BandaRepository) : ViewModel() {
 
     // Lista de convocatorias
     private val _convocatorias = MutableStateFlow(DatosPrueba.convocatorias.toList())
@@ -18,8 +22,9 @@ class ConvocatoriasViewModel : ViewModel() {
     private val _convocatoriaSeleccionada = MutableStateFlow<Convocatoria?>(null)
     val convocatoriaSeleccionada: StateFlow<Convocatoria?> = _convocatoriaSeleccionada.asStateFlow()
 
-    // Lista de bandas del usuario (para elegir con cuál postular)
-    val misBandas = DatosPrueba.bandas
+    // Lista de bandas guardadas en Room (para elegir con cuál postular)
+    val misBandas: StateFlow<List<Banda>> = repository.bandas
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // Vuelve a leer la lista desde los datos (por ejemplo, al volver de "Nueva convocatoria")
     fun recargar() {
