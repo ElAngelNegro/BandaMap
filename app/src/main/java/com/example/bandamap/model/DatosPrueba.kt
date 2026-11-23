@@ -41,6 +41,14 @@ object DatosPrueba {
 
     fun buscarPorId(id: Int): Banda? = bandas.find { it.id == id }
 
+    fun toggleFavorito(bandaId: Int) {
+        val index = bandas.indexOfFirst { it.id == bandaId }
+        if (index != -1) {
+            val banda = bandas[index]
+            bandas[index] = banda.copy(esFavorito = !banda.esFavorito)
+        }
+    }
+
     fun tocatasDeBanda(bandaId: Int): List<Tocata> =
         tocatas.filter { it.bandaId == bandaId }
 

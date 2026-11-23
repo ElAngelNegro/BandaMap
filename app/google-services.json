@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1035640129839",
+    "project_id": "bandamap-d7940",
+    "storage_bucket": "bandamap-d7940.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1035640129839:android:62ef0fe3cb9dfe1abeb9da",
+        "android_client_info": {
+          "package_name": "com.example.bandamap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAU9dE3laP-9a_FGh3T6i-P7ltkcPg8sCM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

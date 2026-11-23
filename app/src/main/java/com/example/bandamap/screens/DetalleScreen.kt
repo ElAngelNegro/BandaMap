@@ -33,146 +33,140 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.bandamap.components.BarraSuperior
+import com.example.bandamap.components.FondoFijo
 import com.example.bandamap.model.DatosPrueba
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DetalleScreen(bandaId: Int, onVolver: () -> Unit) {
-    // Obtenemos la banda y el handler de URI (para abrir links)
     val banda = DatosPrueba.buscarPorId(bandaId)
     val uriHandler = LocalUriHandler.current
 
-    Scaffold(topBar = { BarraSuperior(banda?.nombre ?: "Banda", onVolver) }) { padding ->
-        if (banda == null) {
-            Text(
-                "Banda no encontrada",
-                modifier = Modifier
-                    .padding(padding)
-                    .padding(16.dp),
-                color = MaterialTheme.colorScheme.error
-            )
-        } else {
-            val tocatas = DatosPrueba.tocatasDeBanda(banda.id)
+    FondoFijo(imagen = com.example.bandamap.R.drawable.fondo_5) {
+        Scaffold(
+            topBar = { BarraSuperior(banda?.nombre ?: "Banda", onVolver) },
+            containerColor = androidx.compose.ui.graphics.Color.Transparent
+        ) { padding ->
+            if (banda == null) {
+                Text(
+                    "Banda no encontrada",
+                    modifier = Modifier
+                        .padding(padding)
+                        .padding(16.dp),
+                    color = MaterialTheme.colorScheme.error
+                )
+            } else {
+                val tocatas = DatosPrueba.tocatasDeBanda(banda.id)
 
-            Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .padding(16.dp)
-                    // Habilitamos scroll vertical y animamos el tamaño por si cambia el contenido
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-
-                // Imagen "Hero": si la banda tiene URL se carga con Coil;
-                // si no, se muestra un recuadro de reemplazo
-                if (banda.imagenUrl.isNotBlank()) {
-                    AsyncImage(
-                        model = banda.imagenUrl,
-                        contentDescription = "Foto destacada de ${banda.nombre}",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(240.dp)
-                            .clip(RoundedCornerShape(16.dp)),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(160.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            "Sin imagen",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                Column(
+                    modifier = Modifier
+                        .padding(padding)
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    if (banda.imagenUrl.isNotBlank()) {
+                        AsyncImage(
+                            model = banda.imagenUrl,
+                            contentDescription = "Foto destacada de ${banda.nombre}",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(240.dp)
+                                .clip(RoundedCornerShape(16.dp)),
+                            contentScale = ContentScale.Crop
                         )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(160.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "Sin imagen",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
-                }
 
-                // Información de cabecera
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Surface(
-                        shape = RoundedCornerShape(6.dp),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.45f))
-                    ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.45f))
+                        ) {
+                            Text(
+                                text = "${banda.genero} · ${banda.ciudad}".uppercase(),
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.2.sp,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+
                         Text(
-                            text = "${banda.genero} · ${banda.ciudad}".uppercase(),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.2.sp,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            text = banda.nombre,
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Black
                         )
                     }
 
                     Text(
-                        text = banda.nombre,
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Black
+                        text = banda.descripcion,
+                        style = MaterialTheme.typography.bodyLarge
                     )
-                }
 
-                // Descripción
-                Text(
-                    text = banda.descripcion,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                // Enlaces Sociales
-                // Usamos FlowRow (layout adaptativo) por si los botones no caben en una línea
-                // en pantallas pequeñas, saltarán automáticamente a la siguiente.
-                // Solo mostramos la sección si la banda tiene al menos un enlace
-                val tieneEnlaces = banda.spotify.isNotBlank() ||
-                        banda.instagram.isNotBlank() || banda.youtube.isNotBlank()
-                if (tieneEnlaces) {
-                    Text("Escúchalos en", style = MaterialTheme.typography.titleMedium)
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        BotonEnlace("Spotify", banda.spotify) { uriHandler.openUri(it) }
-                        BotonEnlace("Instagram", banda.instagram) { uriHandler.openUri(it) }
-                        BotonEnlace("YouTube", banda.youtube) { uriHandler.openUri(it) }
+                    val tieneEnlaces = banda.spotify.isNotBlank() ||
+                            banda.instagram.isNotBlank() || banda.youtube.isNotBlank()
+                    if (tieneEnlaces) {
+                        Text("Escúchalos en", style = MaterialTheme.typography.titleMedium)
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            BotonEnlace("Spotify", banda.spotify) { uriHandler.openUri(it) }
+                            BotonEnlace("Instagram", banda.instagram) { uriHandler.openUri(it) }
+                            BotonEnlace("YouTube", banda.youtube) { uriHandler.openUri(it) }
+                        }
                     }
-                }
 
-                // Tarjeta de Tocatas
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
                     ) {
-                        Text("Próximas tocatas", style = MaterialTheme.typography.titleMedium)
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text("Próximas tocatas", style = MaterialTheme.typography.titleMedium)
 
-                        if (tocatas.isEmpty()) {
-                            Text("Sin fechas programadas por el momento.")
-                        } else {
-                            tocatas.forEach { tocata ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = tocata.fecha,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                        Text(
-                                            text = tocata.lugar,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
+                            if (tocatas.isEmpty()) {
+                                Text("Sin fechas programadas por el momento.")
+                            } else {
+                                tocatas.forEach { tocata ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = tocata.fecha,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            Text(
+                                                text = tocata.lugar,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -191,7 +185,6 @@ private fun BotonEnlace(
     modifier: Modifier = Modifier,
     onAbrir: (String) -> Unit
 ) {
-    // Usamos AnimatedVisibility para ocultar botones sin URL de forma fluida
     AnimatedVisibility(visible = url.isNotBlank(), modifier = modifier) {
         OutlinedButton(
             onClick = { runCatching { onAbrir(url) } }

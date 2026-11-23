@@ -1,6 +1,5 @@
 package com.example.bandamap.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,12 +26,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bandamap.components.BarraSuperior
 import com.example.bandamap.components.ConvocatoriaCard
 import com.example.bandamap.components.EncabezadoSeccion
+import com.example.bandamap.components.FondoFijo
 import com.example.bandamap.model.Banda
 import com.example.bandamap.model.Convocatoria
 import com.example.bandamap.viewmodel.ConvocatoriasViewModel
@@ -41,70 +40,65 @@ import com.example.bandamap.viewmodel.ConvocatoriasViewModel
 fun ConvocatoriasScreen(
     onVolver: () -> Unit,
     onNuevaConvocatoria: () -> Unit,
+    onMostrarMensaje: (String) -> Unit,
     viewModel: ConvocatoriasViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-
-    // Observamos los estados desde el ViewModel
     val convocatorias by viewModel.convocatorias.collectAsState()
     val convocatoriaSeleccionada by viewModel.convocatoriaSeleccionada.collectAsState()
 
-    // Cada vez que esta pantalla se muestra (también al volver), recargamos la lista
     LaunchedEffect(Unit) {
         viewModel.recargar()
     }
 
-    Scaffold(
-        topBar = { BarraSuperior("Convocatorias", onVolver) },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onNuevaConvocatoria) {
-                // Usamos un ícono estándar de Material en lugar de texto "+"
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Nueva Convocatoria")
+    FondoFijo(imagen = com.example.bandamap.R.drawable.fondo_4) {
+        Scaffold(
+            topBar = { BarraSuperior("Convocatorias", onVolver) },
+            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            floatingActionButton = {
+                FloatingActionButton(onClick = onNuevaConvocatoria) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Nueva Convocatoria")
+                }
             }
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
-            EncabezadoSeccion(
-                badge = "Comunidad Activa",
-                titulo = "Convocatorias",
-                subtitulo = "Encuentra fechas, festivales y escenarios disponibles para tocar."
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Reemplazamos LazyColumn por LazyVerticalGrid para soportar tablets
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 340.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                // Espacio al final para que el FAB no tape la última tarjeta
-                contentPadding = PaddingValues(bottom = 88.dp)
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                items(convocatorias, key = { it.id }) { convocatoria ->
-                    ConvocatoriaCard(
-                        convocatoria = convocatoria,
-                        onPostular = { viewModel.seleccionarConvocatoria(convocatoria) }
-                    )
+                EncabezadoSeccion(
+                    badge = "Comunidad Activa",
+                    titulo = "Convocatorias",
+                    subtitulo = "Encuentra fechas, festivales y escenarios disponibles para tocar."
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 340.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 88.dp)
+                ) {
+                    items(convocatorias, key = { it.id }) { convocatoria ->
+                        ConvocatoriaCard(
+                            convocatoria = convocatoria,
+                            onPostular = { viewModel.seleccionarConvocatoria(convocatoria) }
+                        )
+                    }
                 }
             }
         }
-    }
 
-    // Diálogo de postulación
-    convocatoriaSeleccionada?.let { convocatoria ->
-        DialogoPostular(
-            convocatoria = convocatoria,
-            misBandas = viewModel.misBandas,
-            onElegirBanda = { banda ->
-                // El ViewModel maneja la lógica y nos devuelve el mensaje a mostrar
-                val mensaje = viewModel.postular(banda)
-                Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
-            },
-            onCancelar = { viewModel.seleccionarConvocatoria(null) }
-        )
+        convocatoriaSeleccionada?.let { convocatoria ->
+            DialogoPostular(
+                convocatoria = convocatoria,
+                misBandas = viewModel.misBandas,
+                onElegirBanda = { banda ->
+                    val mensaje = viewModel.postular(banda)
+                    onMostrarMensaje(mensaje)
+                },
+                onCancelar = { viewModel.seleccionarConvocatoria(null) }
+            )
+        }
     }
 }
 

@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.example.bandamap.components.BandaCard
 import com.example.bandamap.components.BarraSuperior
 import com.example.bandamap.components.EncabezadoSeccion
+import com.example.bandamap.components.EstadoVacio
+import com.example.bandamap.components.FondoFijo
 import com.example.bandamap.model.DatosPrueba
 
 @Composable
@@ -39,42 +41,59 @@ fun BandasScreen(onBandaClick: (Int) -> Unit, onVolver: () -> Unit) {
             it.ciudad.contains(busqueda, ignoreCase = true)
     }
 
-    Scaffold(topBar = { BarraSuperior("Bandas", onVolver) }) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
-            EncabezadoSeccion(
-                badge = "Catálogo Nacional",
-                titulo = "Bandas y Artistas",
-                subtitulo = "Explora proyectos musicales de Chile por nombre, género o ciudad."
-            )
+    FondoFijo(imagen = com.example.bandamap.R.drawable.fondo_3) {
+        Scaffold(
+            topBar = { BarraSuperior("Bandas", onVolver) },
+            containerColor = androidx.compose.ui.graphics.Color.Transparent
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                EncabezadoSeccion(
+                    badge = "Catálogo Nacional",
+                    titulo = "Bandas y Artistas",
+                    subtitulo = "Explora proyectos musicales de Chile por nombre, género o ciudad."
+                )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-            OutlinedTextField(
-                value = busqueda,
-                onValueChange = { busqueda = it },
-                label = { Text("Buscar bandas, géneros o ciudades...") },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
-                },
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            )
+                OutlinedTextField(
+                    value = busqueda,
+                    onValueChange = { busqueda = it },
+                    label = { Text("Buscar bandas, géneros o ciudades...") },
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            Text(
-                text = "${bandasFiltradas.size} bandas encontradas",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(vertical = 10.dp)
-            )
+                Text(
+                    text = "${bandasFiltradas.size} bandas encontradas",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 10.dp)
+                )
 
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(bandasFiltradas, key = { it.id }) { banda ->
-                    BandaCard(banda = banda, onClick = { onBandaClick(banda.id) })
+                if (bandasFiltradas.isEmpty()) {
+                    EstadoVacio(
+                        icon = Icons.Default.Search,
+                        titulo = "Sin resultados",
+                        mensaje = "No se encontró ninguna banda que coincida con \"$busqueda\". Intenta con otro término."
+                    )
+                } else {
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        items(bandasFiltradas, key = { it.id }) { banda ->
+                            BandaCard(
+                                banda = banda,
+                                onClick = { onBandaClick(banda.id) },
+                                onFavoriteClick = { DatosPrueba.toggleFavorito(banda.id) }
+                            )
+                        }
+                    }
                 }
             }
         }

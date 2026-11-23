@@ -39,13 +39,10 @@ import com.example.bandamap.ui.theme.RedPrimary
 
 @Composable
 fun InicioScreen(
-    onExplorarBandas: () -> Unit,
-    onConvocatorias: () -> Unit,
-    onRegistrarBanda: () -> Unit
+    onCerrarSesion: () -> Unit
 ) {
-    FondoCarrusel {
         Scaffold(
-            containerColor = Color.Transparent
+            containerColor = Color.Black
         ) { padding ->
             Column(
                 modifier = Modifier
@@ -71,60 +68,20 @@ fun InicioScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Button(
-                    onClick = onExplorarBandas,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    border = BorderStroke(2.dp, RedLight),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = RedPrimary,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text(
-                        text = "Explorar bandas",
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.2.sp
-                    )
-                }
-
                 OutlinedButton(
-                    onClick = onConvocatorias,
+                    onClick = onCerrarSesion,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp),
                     shape = RoundedCornerShape(14.dp),
-                    border = BorderStroke(2.dp, Color.White),
+                    border = BorderStroke(2.dp, Color.Red),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Black.copy(alpha = 0.45f),
+                        containerColor = Color.Red.copy(alpha = 0.2f),
                         contentColor = Color.White
                     )
                 ) {
                     Text(
-                        text = "Convocatorias",
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.2.sp
-                    )
-                }
-
-                OutlinedButton(
-                    onClick = onRegistrarBanda,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    border = BorderStroke(2.dp, Color.White),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Black.copy(alpha = 0.45f),
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text(
-                        text = "Registrar mi banda",
+                        text = "Cerrar sesión",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.2.sp
@@ -132,7 +89,6 @@ fun InicioScreen(
                 }
             }
         }
-    }
 }
 
 @Composable
@@ -200,13 +156,13 @@ private fun TocataCard(banda: String, fecha: String, lugar: String) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
+            containerColor = Color.White
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(banda, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text(fecha)
-            Text(lugar, style = MaterialTheme.typography.bodySmall)
+            Text(banda, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.Black)
+            Text(fecha, color = Color.DarkGray)
+            Text(lugar, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         }
     }
 }
@@ -216,9 +172,7 @@ private fun TocataCard(banda: String, fecha: String, lugar: String) {
 private fun InicioScreenPreview() {
     BandaMapTheme(darkTheme = true) {
         InicioScreen(
-            onExplorarBandas = {},
-            onConvocatorias = {},
-            onRegistrarBanda = {}
+            onCerrarSesion = {}
         )
     }
 }

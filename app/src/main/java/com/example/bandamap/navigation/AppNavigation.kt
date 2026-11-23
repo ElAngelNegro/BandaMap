@@ -14,18 +14,51 @@ import androidx.navigation.navArgument
 import com.example.bandamap.screens.BandasScreen
 import com.example.bandamap.screens.ConvocatoriasScreen
 import com.example.bandamap.screens.DetalleScreen
+import com.example.bandamap.screens.FavoritosScreen
 import com.example.bandamap.screens.InicioScreen
+import com.example.bandamap.screens.LoginScreen
 import com.example.bandamap.screens.NuevaConvocatoriaScreen
 import com.example.bandamap.screens.RegistrarScreen
+import com.example.bandamap.screens.RegistroScreen
+import com.example.bandamap.viewmodel.AuthViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val authViewModel: AuthViewModel = viewModel()
+    
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-    NavHost(
-        navController = navController,
-        startDestination = Rutas.INICIO,
-        enterTransition = {
+    val mostrarMensaje: (String) -> Unit = { mensaje ->
+        coroutineScope.launch {
+            snackbarHostState.showSnackbar(mensaje)
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.Transparent,
+        bottomBar = { com.example.bandamap.components.BarraNavegacionInferior(navController) },
+        modifier = Modifier.fillMaxSize()
+    ) { innerPadding ->
+        NavHost(
+            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding()),
+            navController = navController,
+            startDestination = if (authViewModel.haySesionActiva()) Rutas.INICIO else Rutas.LOGIN,
+            enterTransition = {
             slideIntoContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Start,
                 animationSpec = tween(350, easing = FastOutSlowInEasing)
@@ -51,11 +84,45 @@ fun AppNavigation() {
         }
     ) {
 
+        composable(Rutas.LOGIN) {
+            LoginScreen(
+                viewModel = authViewModel,
+                onLoginExitoso = {
+                    navController.navigate(Rutas.INICIO) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onIrARegistro = { navController.navigate(Rutas.REGISTRO_USUARIO) }
+            )
+        }
+
+        composable(Rutas.REGISTRO_USUARIO) {
+            RegistroScreen(
+                viewModel = authViewModel,
+                onRegistroExitoso = {
+                    navController.navigate(Rutas.INICIO) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onVolver = { navController.popBackStack() }
+            )
+        }
+
         composable(Rutas.INICIO) {
             InicioScreen(
-                onExplorarBandas = { navController.navigate(Rutas.BANDAS) },
-                onConvocatorias = { navController.navigate(Rutas.CONVOCATORIAS) },
-                onRegistrarBanda = { navController.navigate(Rutas.REGISTRAR) }
+                onCerrarSesion = {
+                    authViewModel.cerrarSesion()
+                    navController.navigate(Rutas.LOGIN) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Rutas.FAVORITOS) {
+            FavoritosScreen(
+                onBandaClick = { id -> navController.navigate(Rutas.detalle(id)) },
+                onVolver = { navController.popBackStack() }
             )
         }
 
@@ -78,18 +145,26 @@ fun AppNavigation() {
         }
 
         composable(Rutas.REGISTRAR) {
-            RegistrarScreen(onVolver = { navController.popBackStack() })
+            RegistrarScreen(
+                onVolver = { navController.popBackStack() },
+                onMostrarMensaje = mostrarMensaje
+            )
         }
 
         composable(Rutas.CONVOCATORIAS) {
             ConvocatoriasScreen(
                 onVolver = { navController.popBackStack() },
-                onNuevaConvocatoria = { navController.navigate(Rutas.NUEVA_CONVOCATORIA) }
+                onNuevaConvocatoria = { navController.navigate(Rutas.NUEVA_CONVOCATORIA) },
+                onMostrarMensaje = mostrarMensaje
             )
         }
 
         composable(Rutas.NUEVA_CONVOCATORIA) {
-            NuevaConvocatoriaScreen(onVolver = { navController.popBackStack() })
+            NuevaConvocatoriaScreen(
+                onVolver = { navController.popBackStack() },
+                onMostrarMensaje = mostrarMensaje
+            )
         }
+    }
     }
 }

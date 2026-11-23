@@ -1,7 +1,12 @@
 package com.example.bandamap.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "bandas")
 data class Banda(
-    val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val nombre: String,
     val genero: String,
     val ciudad: String,
@@ -9,5 +14,6 @@ data class Banda(
     val imagenUrl: String = "",
     val spotify: String = "",
     val instagram: String = "",
-    val youtube: String = ""
+    val youtube: String = "",
+    val esFavorito: Boolean = false
 )
