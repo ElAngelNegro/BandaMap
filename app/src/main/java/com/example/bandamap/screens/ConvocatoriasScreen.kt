@@ -44,6 +44,7 @@ fun ConvocatoriasScreen(
     viewModel: ConvocatoriasViewModel = viewModel()
 ) {
     val convocatorias by viewModel.convocatorias.collectAsState()
+    val misBandas by viewModel.misBandas.collectAsState()
     val convocatoriaSeleccionada by viewModel.convocatoriaSeleccionada.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -91,7 +92,7 @@ fun ConvocatoriasScreen(
         convocatoriaSeleccionada?.let { convocatoria ->
             DialogoPostular(
                 convocatoria = convocatoria,
-                misBandas = viewModel.misBandas,
+                misBandas = misBandas,
                 onElegirBanda = { banda ->
                     val mensaje = viewModel.postular(banda)
                     onMostrarMensaje(mensaje)

@@ -21,6 +21,7 @@ import com.example.bandamap.screens.NuevaConvocatoriaScreen
 import com.example.bandamap.screens.RegistrarScreen
 import com.example.bandamap.screens.RegistroScreen
 import com.example.bandamap.viewmodel.AuthViewModel
+import com.example.bandamap.viewmodel.BandaMapViewModelFactory
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import androidx.compose.material3.Scaffold
@@ -121,6 +122,9 @@ fun AppNavigation() {
 
         composable(Rutas.FAVORITOS) {
             FavoritosScreen(
+                viewModel = viewModel(factory = BandaMapViewModelFactory(
+                    com.example.bandamap.data.BandaRepository(com.example.bandamap.data.AppDatabase.obtenerBaseDeDatos(androidx.compose.ui.platform.LocalContext.current).bandaDao())
+                )),
                 onBandaClick = { id -> navController.navigate(Rutas.detalle(id)) },
                 onVolver = { navController.popBackStack() }
             )
@@ -128,6 +132,9 @@ fun AppNavigation() {
 
         composable(Rutas.BANDAS) {
             BandasScreen(
+                viewModel = viewModel(factory = BandaMapViewModelFactory(
+                    com.example.bandamap.data.BandaRepository(com.example.bandamap.data.AppDatabase.obtenerBaseDeDatos(androidx.compose.ui.platform.LocalContext.current).bandaDao())
+                )),
                 onBandaClick = { id -> navController.navigate(Rutas.detalle(id)) },
                 onVolver = { navController.popBackStack() }
             )
@@ -140,12 +147,19 @@ fun AppNavigation() {
             val bandaId = backStackEntry.arguments?.getInt("bandaId") ?: 0
             DetalleScreen(
                 bandaId = bandaId,
+                viewModel = viewModel(factory = BandaMapViewModelFactory(
+                    com.example.bandamap.data.BandaRepository(com.example.bandamap.data.AppDatabase.obtenerBaseDeDatos(androidx.compose.ui.platform.LocalContext.current).bandaDao())
+                )),
+                onEditar = { },
                 onVolver = { navController.popBackStack() }
             )
         }
 
         composable(Rutas.REGISTRAR) {
             RegistrarScreen(
+                viewModel = viewModel(factory = BandaMapViewModelFactory(
+                    com.example.bandamap.data.BandaRepository(com.example.bandamap.data.AppDatabase.obtenerBaseDeDatos(androidx.compose.ui.platform.LocalContext.current).bandaDao())
+                )),
                 onVolver = { navController.popBackStack() },
                 onMostrarMensaje = mostrarMensaje
             )
@@ -153,6 +167,9 @@ fun AppNavigation() {
 
         composable(Rutas.CONVOCATORIAS) {
             ConvocatoriasScreen(
+                viewModel = viewModel(factory = BandaMapViewModelFactory(
+                    com.example.bandamap.data.BandaRepository(com.example.bandamap.data.AppDatabase.obtenerBaseDeDatos(androidx.compose.ui.platform.LocalContext.current).bandaDao())
+                )),
                 onVolver = { navController.popBackStack() },
                 onNuevaConvocatoria = { navController.navigate(Rutas.NUEVA_CONVOCATORIA) },
                 onMostrarMensaje = mostrarMensaje

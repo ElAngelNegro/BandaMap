@@ -30,16 +30,14 @@ import com.example.bandamap.components.EncabezadoSeccion
 import com.example.bandamap.components.EstadoVacio
 import com.example.bandamap.components.FondoFijo
 import com.example.bandamap.model.DatosPrueba
+import com.example.bandamap.viewmodel.BandasViewModel
+import androidx.compose.runtime.collectAsState
 
 @Composable
-fun BandasScreen(onBandaClick: (Int) -> Unit, onVolver: () -> Unit) {
-    var busqueda by remember { mutableStateOf("") }
-
-    val bandasFiltradas = DatosPrueba.bandas.filter {
-        it.nombre.contains(busqueda, ignoreCase = true) ||
-            it.genero.contains(busqueda, ignoreCase = true) ||
-            it.ciudad.contains(busqueda, ignoreCase = true)
-    }
+fun BandasScreen(viewModel: BandasViewModel, onBandaClick: (Int) -> Unit, onVolver: () -> Unit) {
+    val busqueda by viewModel.busqueda.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val bandasFiltradas = uiState.bandas
 
     FondoFijo(imagen = com.example.bandamap.R.drawable.fondo_3) {
         Scaffold(
@@ -61,7 +59,7 @@ fun BandasScreen(onBandaClick: (Int) -> Unit, onVolver: () -> Unit) {
 
                 OutlinedTextField(
                     value = busqueda,
-                    onValueChange = { busqueda = it },
+                    onValueChange = viewModel::onBusquedaChange,
                     label = { Text("Buscar bandas, géneros o ciudades...") },
                     leadingIcon = {
                         Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
@@ -90,7 +88,7 @@ fun BandasScreen(onBandaClick: (Int) -> Unit, onVolver: () -> Unit) {
                             BandaCard(
                                 banda = banda,
                                 onClick = { onBandaClick(banda.id) },
-                                onFavoriteClick = { DatosPrueba.toggleFavorito(banda.id) }
+                                onFavoriteClick = { viewModel.toggleFavorito(banda) }
                             )
                         }
                     }
