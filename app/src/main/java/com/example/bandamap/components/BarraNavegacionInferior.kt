@@ -1,7 +1,10 @@
 package com.example.bandamap.components
 
 import androidx.compose.material.icons.Icons
-
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -12,18 +15,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.bandamap.navigation.Rutas
 
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-
 sealed class DestinoNavegacion(
     val ruta: String,
     val titulo: String,
     val icono: ImageVector
 ) {
     object Inicio : DestinoNavegacion(Rutas.INICIO, "Inicio", Icons.Default.Home)
-    object Bandas : DestinoNavegacion(Rutas.BANDAS, "Bandas", Icons.Default.List)
+    object Bandas : DestinoNavegacion(Rutas.BANDAS, "Bandas", Icons.AutoMirrored.Filled.List)
     object Convocatorias : DestinoNavegacion(Rutas.CONVOCATORIAS, "Convoc.", Icons.Default.Notifications)
     object Favoritos : DestinoNavegacion(Rutas.FAVORITOS, "Favoritos", Icons.Default.Favorite)
 }
@@ -40,7 +38,6 @@ fun BarraNavegacionInferior(navController: NavController) {
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val rutaActual = navBackStackEntry.value?.destination?.route
 
-    // Solo mostramos la barra en los destinos principales (ocultamos en Login, Registro, etc.)
     val mostrarBarra = destinosPrincipales.any { it.ruta == rutaActual } ||
             rutaActual == Rutas.REGISTRAR ||
             rutaActual == Rutas.NUEVA_CONVOCATORIA ||
