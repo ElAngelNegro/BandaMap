@@ -136,6 +136,7 @@ fun AppNavigation() {
                     com.example.bandamap.data.BandaRepository(com.example.bandamap.data.AppDatabase.obtenerBaseDeDatos(androidx.compose.ui.platform.LocalContext.current).bandaDao())
                 )),
                 onBandaClick = { id -> navController.navigate(Rutas.detalle(id)) },
+                onAgregar = { navController.navigate(Rutas.REGISTRAR) },
                 onVolver = { navController.popBackStack() }
             )
         }

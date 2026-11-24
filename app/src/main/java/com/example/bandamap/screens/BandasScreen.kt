@@ -10,7 +10,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -34,7 +36,12 @@ import com.example.bandamap.viewmodel.BandasViewModel
 import androidx.compose.runtime.collectAsState
 
 @Composable
-fun BandasScreen(viewModel: BandasViewModel, onBandaClick: (Int) -> Unit, onVolver: () -> Unit) {
+fun BandasScreen(
+    viewModel: BandasViewModel,
+    onBandaClick: (Int) -> Unit,
+    onAgregar: () -> Unit,
+    onVolver: () -> Unit
+) {
     val busqueda by viewModel.busqueda.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val bandasFiltradas = uiState.bandas
@@ -42,7 +49,12 @@ fun BandasScreen(viewModel: BandasViewModel, onBandaClick: (Int) -> Unit, onVolv
     FondoFijo(imagen = com.example.bandamap.R.drawable.fondo_3) {
         Scaffold(
             topBar = { BarraSuperior("Bandas", onVolver) },
-            containerColor = androidx.compose.ui.graphics.Color.Transparent
+            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            floatingActionButton = {
+                FloatingActionButton(onClick = onAgregar) {
+                    Icon(Icons.Default.Add, contentDescription = "Registrar banda")
+                }
+            }
         ) { padding ->
             Column(
                 modifier = Modifier
