@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 // DATABASE: punto de acceso a la base de datos SQLite "bandamap.db".
 // Lista las Entities (tablas) y entrega los DAO.
-@Database(entities = [Banda::class], version = 1, exportSchema = false)
+@Database(entities = [Banda::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun bandaDao(): BandaDao
@@ -35,10 +35,11 @@ abstract class AppDatabase : RoomDatabase() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
                             CoroutineScope(Dispatchers.IO).launch {
-                                INSTANCE?.bandaDao()?.insertarTodas(DatosPrueba.bandasIniciales)
+                                INSTANCE?.bandaDao()?.insertarTodas(DatosPrueba.bandas)
                             }
                         }
                     })
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instancia
                 instancia

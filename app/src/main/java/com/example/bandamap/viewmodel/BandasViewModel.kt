@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 // Estado de la pantalla de lista de bandas
 data class BandasUiState(
@@ -17,7 +18,7 @@ data class BandasUiState(
     val cargando: Boolean = true
 )
 
-class BandasViewModel(repository: BandaRepository) : ViewModel() {
+class BandasViewModel(private val repository: BandaRepository) : ViewModel() {
 
     // Texto del buscador (función propia: búsqueda por nombre, género o ciudad)
     private val _busqueda = MutableStateFlow("")
@@ -37,5 +38,11 @@ class BandasViewModel(repository: BandaRepository) : ViewModel() {
 
     fun onBusquedaChange(texto: String) {
         _busqueda.value = texto
+    }
+
+    fun toggleFavorito(banda: Banda) {
+        viewModelScope.launch {
+            repository.actualizar(banda.copy(esFavorito = !banda.esFavorito))
+        }
     }
 }

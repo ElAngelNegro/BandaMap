@@ -48,7 +48,7 @@ fun EncabezadoSeccion(
         Text(
             text = titulo,
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Black,
+            fontFamily = androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.example.bandamap.R.font.pastor_of_muppets)),
             color = MaterialTheme.colorScheme.onBackground
         )
 

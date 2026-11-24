@@ -40,7 +40,7 @@ android {
 
 dependencies {
     // Firebase Authentication (correo y contraseña)
-    implementation(platform("com.google.firebase:firebase-bom:34.17.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
     implementation("com.google.firebase:firebase-auth")
     // Room (base de datos local SQLite)
     implementation("androidx.room:room-runtime:2.8.4")

@@ -4,8 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 
 object DatosPrueba {
 
-    // Bandas de ejemplo: se insertan en Room solo la primera vez que se crea la base de datos
-    val bandasIniciales = listOf(
+    val bandas = mutableStateListOf(
         Banda(1, "Sur de Acero", "Metal", "Santiago",
             "Cuarteto de metal de Santiago. Riffs intensos y letras sobre la vida en la ciudad.",
             spotify = "https://open.spotify.com",
@@ -40,8 +39,33 @@ object DatosPrueba {
             "Festival punk autogestionado.")
     )
 
+    fun buscarPorId(id: Int): Banda? = bandas.find { it.id == id }
+
+    fun toggleFavorito(bandaId: Int) {
+        val index = bandas.indexOfFirst { it.id == bandaId }
+        if (index != -1) {
+            val banda = bandas[index]
+            bandas[index] = banda.copy(esFavorito = !banda.esFavorito)
+        }
+    }
+
     fun tocatasDeBanda(bandaId: Int): List<Tocata> =
         tocatas.filter { it.bandaId == bandaId }
+
+    fun agregarBanda(
+        nombre: String,
+        genero: String,
+        ciudad: String,
+        descripcion: String,
+        spotify: String,
+        instagram: String
+    ) {
+        val nuevoId = (bandas.maxOfOrNull { it.id } ?: 0) + 1
+        bandas.add(
+            Banda(nuevoId, nombre, genero, ciudad, descripcion,
+                spotify = spotify, instagram = instagram)
+        )
+    }
 
     fun agregarConvocatoria(
         titulo: String,

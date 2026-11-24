@@ -1,6 +1,5 @@
 package com.example.bandamap.screens
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -26,12 +25,10 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,125 +36,113 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bandamap.components.BarraSuperior
 import com.example.bandamap.components.EncabezadoSeccion
+import com.example.bandamap.components.FondoFijo
 import com.example.bandamap.viewmodel.RegistrarViewModel
 
 @Composable
 fun RegistrarScreen(
-    viewModel: RegistrarViewModel,
     onVolver: () -> Unit,
-    bandaId: Int? = null          // null = registrar nueva, con valor = editar esa banda
+    onMostrarMensaje: (String) -> Unit,
+    viewModel: RegistrarViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val formState by viewModel.formState.collectAsState()
 
-    // Modo edición: carga los datos de la banda en el formulario
-    LaunchedEffect(bandaId) {
-        if (bandaId != null) viewModel.cargarBanda(bandaId)
-    }
-
-    // Cuando Room terminó de guardar, avisamos y volvemos
-    LaunchedEffect(formState.guardado) {
-        if (formState.guardado) {
-            val mensaje = if (formState.esEdicion) "¡Banda actualizada!" else "¡Banda registrada exitosamente!"
-            Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
-            onVolver()
-        }
-    }
-
-    val titulo = if (bandaId != null) "Editar banda" else "Registrar banda"
-
-    Scaffold(topBar = { BarraSuperior(titulo, onVolver) }) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(horizontal = 24.dp, vertical = 16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            EncabezadoSeccion(
-                badge = if (bandaId != null) "Edita tu Proyecto" else "Suma tu Proyecto",
-                titulo = if (bandaId != null) "Editar Banda" else "Registrar Banda",
-                subtitulo = if (bandaId != null)
-                    "Actualiza los datos de tu banda. Los campos con * son obligatorios."
-                else
-                    "Comparte tu música con la comunidad de BandaMap. Los campos con * son obligatorios."
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            CampoTextoIcono(
-                etiqueta = "Nombre de la banda *",
-                valor = formState.nombre,
-                onCambio = viewModel::onNombreChange,
-                icono = Icons.Default.Star,
-                error = formState.nombreError
-            )
-
-            CampoSeleccionGenero(
-                generoSeleccionado = formState.genero,
-                onGeneroChange = viewModel::onGeneroChange,
-                error = formState.generoError
-            )
-
-            CampoTextoIcono(
-                etiqueta = "Ciudad *",
-                valor = formState.ciudad,
-                onCambio = viewModel::onCiudadChange,
-                icono = Icons.Default.LocationOn,
-                error = formState.ciudadError
-            )
-
-            CampoTextoIcono(
-                etiqueta = "Descripción",
-                valor = formState.descripcion,
-                onCambio = viewModel::onDescripcionChange,
-                icono = Icons.Default.Info,
-                error = false,
-                unaLinea = false
-            )
-
-            CampoTextoIcono(
-                etiqueta = "Enlace Spotify",
-                valor = formState.spotify,
-                onCambio = viewModel::onSpotifyChange,
-                icono = Icons.Default.PlayArrow,
-                error = false,
-                esEnlace = true
-            )
-
-            CampoTextoIcono(
-                etiqueta = "Enlace Instagram",
-                valor = formState.instagram,
-                onCambio = viewModel::onInstagramChange,
-                icono = Icons.Default.Person,
-                error = false,
-                esEnlace = true
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    // Si es válido, guarda en Room y el LaunchedEffect de arriba vuelve atrás
-                    if (!viewModel.guardarBanda()) {
-                        Toast.makeText(context, "Por favor, completa los campos obligatorios", Toast.LENGTH_SHORT).show()
-                    }
-                },
+    FondoFijo(imagen = com.example.bandamap.R.drawable.fondo_6) {
+        Scaffold(
+            topBar = { BarraSuperior("Registrar banda", onVolver) },
+            containerColor = androidx.compose.ui.graphics.Color.Transparent
+        ) { padding ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp) // Botón más grande y clickeable
+                    .padding(padding)
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(if (bandaId != null) "Guardar cambios" else "Guardar Banda", style = MaterialTheme.typography.titleMedium)
-            }
+                EncabezadoSeccion(
+                    badge = "Suma tu Proyecto",
+                    titulo = "Registrar Banda",
+                    subtitulo = "Comparte tu música con la comunidad de BandaMap. Los campos con * son obligatorios."
+                )
 
-            Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(4.dp))
+
+                CampoTextoIcono(
+                    etiqueta = "Nombre de la banda *",
+                    valor = formState.nombre,
+                    onCambio = viewModel::onNombreChange,
+                    icono = Icons.Default.Star,
+                    error = formState.nombreError
+                )
+
+                CampoSeleccionGenero(
+                    generoSeleccionado = formState.genero,
+                    onGeneroChange = viewModel::onGeneroChange,
+                    error = formState.generoError
+                )
+
+                CampoTextoIcono(
+                    etiqueta = "Ciudad *",
+                    valor = formState.ciudad,
+                    onCambio = viewModel::onCiudadChange,
+                    icono = Icons.Default.LocationOn,
+                    error = formState.ciudadError
+                )
+
+                CampoTextoIcono(
+                    etiqueta = "Descripción",
+                    valor = formState.descripcion,
+                    onCambio = viewModel::onDescripcionChange,
+                    icono = Icons.Default.Info,
+                    error = false,
+                    unaLinea = false
+                )
+
+                CampoTextoIcono(
+                    etiqueta = "Enlace Spotify",
+                    valor = formState.spotify,
+                    onCambio = viewModel::onSpotifyChange,
+                    icono = Icons.Default.PlayArrow,
+                    error = false,
+                    esEnlace = true
+                )
+
+                CampoTextoIcono(
+                    etiqueta = "Enlace Instagram",
+                    valor = formState.instagram,
+                    onCambio = viewModel::onInstagramChange,
+                    icono = Icons.Default.Person,
+                    error = false,
+                    esEnlace = true
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        if (viewModel.guardarBanda()) {
+                            onMostrarMensaje("¡Banda registrada exitosamente!")
+                            onVolver()
+                        } else {
+                            onMostrarMensaje("Por favor, completa los campos obligatorios")
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                ) {
+                    Text("Guardar Banda", style = MaterialTheme.typography.titleMedium)
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+            }
         }
     }
 }
@@ -191,7 +176,7 @@ private fun CampoSeleccionGenero(
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(type = MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor()
         )
 
         ExposedDropdownMenu(
@@ -228,10 +213,17 @@ private fun CampoTextoIcono(
         leadingIcon = { Icon(imageVector = icono, contentDescription = null) },
         isError = error,
         supportingText = { MensajeErrorAnimado(error) },
-        singleLine = unaLinea,
+        singleLine = true,
+        colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+            focusedTextColor = androidx.compose.ui.graphics.Color.White,
+            unfocusedTextColor = androidx.compose.ui.graphics.Color.White,
+            focusedLabelColor = androidx.compose.ui.graphics.Color.White,
+            unfocusedLabelColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.7f),
+            focusedLeadingIconColor = androidx.compose.ui.graphics.Color.White,
+            unfocusedLeadingIconColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.7f)
+        ),
         modifier = Modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions(
-            // Los enlaces no llevan mayúscula inicial y usan el teclado para URL
             capitalization = if (esEnlace) KeyboardCapitalization.None else KeyboardCapitalization.Sentences,
             keyboardType = if (esEnlace) KeyboardType.Uri else KeyboardType.Text,
             imeAction = if (unaLinea) ImeAction.Next else ImeAction.Default
@@ -239,7 +231,6 @@ private fun CampoTextoIcono(
     )
 }
 
-// Componente reutilizable para animar la aparición del mensaje de error
 @Composable
 private fun MensajeErrorAnimado(visible: Boolean) {
     AnimatedVisibility(

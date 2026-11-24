@@ -10,7 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,7 +27,11 @@ import androidx.compose.ui.unit.dp
 import com.example.bandamap.model.Banda
 
 @Composable
-fun BandaCard(banda: Banda, onClick: () -> Unit) {
+fun BandaCard(
+    banda: Banda,
+    onClick: () -> Unit,
+    onFavoriteClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -31,7 +41,6 @@ fun BandaCard(banda: Banda, onClick: () -> Unit) {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Recuadro gris que representa la foto
             Box(
                 modifier = Modifier
                     .size(56.dp)
@@ -43,7 +52,13 @@ fun BandaCard(banda: Banda, onClick: () -> Unit) {
                 Text(banda.genero)
                 Text(banda.ciudad, style = MaterialTheme.typography.bodySmall)
             }
-            Text(">")
+            IconButton(onClick = onFavoriteClick) {
+                Icon(
+                    imageVector = if (banda.esFavorito) Icons.Default.Favorite else Icons.Outlined.FavoriteBorder,
+                    contentDescription = "Favorito",
+                    tint = if (banda.esFavorito) Color.Red else LocalContentColor.current
+                )
+            }
         }
     }
 }

@@ -47,8 +47,11 @@ fun LoginScreen(
         if (uiState.autenticado) onLoginExitoso()
     }
 
-    Scaffold { padding ->
-        Column(
+    com.example.bandamap.components.FondoCarrusel {
+        Scaffold(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent
+        ) { padding ->
+            Column(
             modifier = Modifier
                 .padding(padding)
                 .padding(24.dp)
@@ -59,12 +62,14 @@ fun LoginScreen(
         ) {
             Text(
                 "BandaMap",
-                style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.primary
+                style = MaterialTheme.typography.displayMedium,
+                fontFamily = androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.example.bandamap.R.font.pastor_of_muppets)),
+                color = androidx.compose.ui.graphics.Color.White
             )
             Text(
                 "Inicia sesión para continuar",
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = androidx.compose.ui.graphics.Color.White
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -77,6 +82,14 @@ fun LoginScreen(
                 isError = uiState.emailError != null,
                 supportingText = uiState.emailError?.let { { Text(it) } },
                 singleLine = true,
+                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = androidx.compose.ui.graphics.Color.White,
+                    unfocusedTextColor = androidx.compose.ui.graphics.Color.White,
+                    focusedLabelColor = androidx.compose.ui.graphics.Color.White,
+                    unfocusedLabelColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.7f),
+                    focusedLeadingIconColor = androidx.compose.ui.graphics.Color.White,
+                    unfocusedLeadingIconColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.7f)
+                ),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
@@ -93,6 +106,14 @@ fun LoginScreen(
                 supportingText = uiState.passwordError?.let { { Text(it) } },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
+                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = androidx.compose.ui.graphics.Color.White,
+                    unfocusedTextColor = androidx.compose.ui.graphics.Color.White,
+                    focusedLabelColor = androidx.compose.ui.graphics.Color.White,
+                    unfocusedLabelColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.7f),
+                    focusedLeadingIconColor = androidx.compose.ui.graphics.Color.White,
+                    unfocusedLeadingIconColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.7f)
+                ),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
@@ -128,4 +149,5 @@ fun LoginScreen(
             }
         }
     }
+}
 }
