@@ -30,6 +30,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.example.bandamap.BandaMapApplication
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -39,6 +41,10 @@ import kotlinx.coroutines.launch
 fun AppNavigation() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
+
+    // Factory con el Repository único de la app (creado en BandaMapApplication)
+    val app = LocalContext.current.applicationContext as BandaMapApplication
+    val factory = remember { BandaMapViewModelFactory(app.bandaRepository) }
     
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -122,9 +128,7 @@ fun AppNavigation() {
 
         composable(Rutas.FAVORITOS) {
             FavoritosScreen(
-                viewModel = viewModel(factory = BandaMapViewModelFactory(
-                    com.example.bandamap.data.BandaRepository(com.example.bandamap.data.AppDatabase.obtenerBaseDeDatos(androidx.compose.ui.platform.LocalContext.current).bandaDao())
-                )),
+                viewModel = viewModel(factory = factory),
                 onBandaClick = { id -> navController.navigate(Rutas.detalle(id)) },
                 onVolver = { navController.popBackStack() }
             )
@@ -132,9 +136,7 @@ fun AppNavigation() {
 
         composable(Rutas.BANDAS) {
             BandasScreen(
-                viewModel = viewModel(factory = BandaMapViewModelFactory(
-                    com.example.bandamap.data.BandaRepository(com.example.bandamap.data.AppDatabase.obtenerBaseDeDatos(androidx.compose.ui.platform.LocalContext.current).bandaDao())
-                )),
+                viewModel = viewModel(factory = factory),
                 onBandaClick = { id -> navController.navigate(Rutas.detalle(id)) },
                 onAgregar = { navController.navigate(Rutas.REGISTRAR) },
                 onVolver = { navController.popBackStack() }
@@ -148,19 +150,28 @@ fun AppNavigation() {
             val bandaId = backStackEntry.arguments?.getInt("bandaId") ?: 0
             DetalleScreen(
                 bandaId = bandaId,
-                viewModel = viewModel(factory = BandaMapViewModelFactory(
-                    com.example.bandamap.data.BandaRepository(com.example.bandamap.data.AppDatabase.obtenerBaseDeDatos(androidx.compose.ui.platform.LocalContext.current).bandaDao())
-                )),
-                onEditar = { },
+                viewModel = viewModel(factory = factory),
+                onEditar = { id -> navController.navigate(Rutas.editar(id)) },
                 onVolver = { navController.popBackStack() }
             )
         }
 
         composable(Rutas.REGISTRAR) {
             RegistrarScreen(
-                viewModel = viewModel(factory = BandaMapViewModelFactory(
-                    com.example.bandamap.data.BandaRepository(com.example.bandamap.data.AppDatabase.obtenerBaseDeDatos(androidx.compose.ui.platform.LocalContext.current).bandaDao())
-                )),
+                viewModel = viewModel(factory = factory),
+                onVolver = { navController.popBackStack() },
+                onMostrarMensaje = mostrarMensaje
+            )
+        }
+
+        composable(
+            route = Rutas.EDITAR,
+            arguments = listOf(navArgument("bandaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val bandaId = backStackEntry.arguments?.getInt("bandaId") ?: 0
+            RegistrarScreen(
+                viewModel = viewModel(factory = factory),
+                bandaId = bandaId,
                 onVolver = { navController.popBackStack() },
                 onMostrarMensaje = mostrarMensaje
             )
@@ -168,9 +179,7 @@ fun AppNavigation() {
 
         composable(Rutas.CONVOCATORIAS) {
             ConvocatoriasScreen(
-                viewModel = viewModel(factory = BandaMapViewModelFactory(
-                    com.example.bandamap.data.BandaRepository(com.example.bandamap.data.AppDatabase.obtenerBaseDeDatos(androidx.compose.ui.platform.LocalContext.current).bandaDao())
-                )),
+                viewModel = viewModel(factory = factory),
                 onVolver = { navController.popBackStack() },
                 onNuevaConvocatoria = { navController.navigate(Rutas.NUEVA_CONVOCATORIA) },
                 onMostrarMensaje = mostrarMensaje

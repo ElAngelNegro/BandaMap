@@ -3,6 +3,7 @@ package com.example.bandamap.data
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.bandamap.model.Banda
@@ -27,7 +28,8 @@ interface BandaDao {
     suspend fun insertar(banda: Banda)
 
     // CREATE (varias a la vez, para los datos iniciales)
-    @Insert
+    // IGNORE: si una banda de ejemplo ya existe, no la duplica ni se cae
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertarTodas(bandas: List<Banda>)
 
     // UPDATE

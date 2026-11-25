@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +41,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bandamap.components.BarraSuperior
 import com.example.bandamap.components.EncabezadoSeccion
 import com.example.bandamap.components.FondoFijo
@@ -48,15 +48,30 @@ import com.example.bandamap.viewmodel.RegistrarViewModel
 
 @Composable
 fun RegistrarScreen(
+    viewModel: RegistrarViewModel,
     onVolver: () -> Unit,
     onMostrarMensaje: (String) -> Unit,
-    viewModel: RegistrarViewModel = viewModel()
+    bandaId: Int? = null          // null = registrar nueva, con valor = editar esa banda
 ) {
     val formState by viewModel.formState.collectAsState()
+    val esEdicion = bandaId != null
+
+    // Modo edición: carga los datos de la banda en el formulario
+    LaunchedEffect(bandaId) {
+        if (bandaId != null) viewModel.cargarBanda(bandaId)
+    }
+
+    // Cuando Room terminó de guardar, avisamos y volvemos
+    LaunchedEffect(formState.guardado) {
+        if (formState.guardado) {
+            onMostrarMensaje(if (esEdicion) "¡Banda actualizada!" else "¡Banda registrada exitosamente!")
+            onVolver()
+        }
+    }
 
     FondoFijo(imagen = com.example.bandamap.R.drawable.fondo_6) {
         Scaffold(
-            topBar = { BarraSuperior("Registrar banda", onVolver) },
+            topBar = { BarraSuperior(if (esEdicion) "Editar banda" else "Registrar banda", onVolver) },
             containerColor = androidx.compose.ui.graphics.Color.Transparent
         ) { padding ->
             Column(
@@ -67,9 +82,12 @@ fun RegistrarScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 EncabezadoSeccion(
-                    badge = "Suma tu Proyecto",
-                    titulo = "Registrar Banda",
-                    subtitulo = "Comparte tu música con la comunidad de BandaMap. Los campos con * son obligatorios."
+                    badge = if (esEdicion) "Edita tu Proyecto" else "Suma tu Proyecto",
+                    titulo = if (esEdicion) "Editar Banda" else "Registrar Banda",
+                    subtitulo = if (esEdicion)
+                        "Actualiza los datos de tu banda. Los campos con * son obligatorios."
+                    else
+                        "Comparte tu música con la comunidad de BandaMap. Los campos con * son obligatorios."
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -127,10 +145,8 @@ fun RegistrarScreen(
 
                 Button(
                     onClick = {
-                        if (viewModel.guardarBanda()) {
-                            onMostrarMensaje("¡Banda registrada exitosamente!")
-                            onVolver()
-                        } else {
+                        // Si es válido, guarda en Room y el LaunchedEffect de arriba vuelve atrás
+                        if (!viewModel.guardarBanda()) {
                             onMostrarMensaje("Por favor, completa los campos obligatorios")
                         }
                     },
@@ -138,7 +154,7 @@ fun RegistrarScreen(
                         .fillMaxWidth()
                         .height(56.dp)
                 ) {
-                    Text("Guardar Banda", style = MaterialTheme.typography.titleMedium)
+                    Text(if (esEdicion) "Guardar cambios" else "Guardar Banda", style = MaterialTheme.typography.titleMedium)
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))

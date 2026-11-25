@@ -31,18 +31,29 @@ abstract class AppDatabase : RoomDatabase() {
                     "bandamap.db"
                 )
                     .addCallback(object : Callback() {
-                        // Solo la primera vez que se crea la base: cargamos bandas de ejemplo
+                        // La primera vez que se crea la base: cargamos bandas de ejemplo
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
-                            CoroutineScope(Dispatchers.IO).launch {
-                                INSTANCE?.bandaDao()?.insertarTodas(DatosPrueba.bandas)
-                            }
+                            cargarBandasDeEjemplo()
+                        }
+
+                        // Al subir de versión (1 a 2) las tablas quedan vacías: las cargamos de nuevo
+                        override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+                            super.onDestructiveMigration(db)
+                            cargarBandasDeEjemplo()
                         }
                     })
-                    .fallbackToDestructiveMigration()
+                    // Si cambia la versión, Room borra y vuelve a crear las tablas
+                    .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                 INSTANCE = instancia
                 instancia
+            }
+        }
+
+        private fun cargarBandasDeEjemplo() {
+            CoroutineScope(Dispatchers.IO).launch {
+                INSTANCE?.bandaDao()?.insertarTodas(DatosPrueba.bandas)
             }
         }
     }

@@ -40,6 +40,7 @@ fun BarraNavegacionInferior(navController: NavController) {
 
     val mostrarBarra = destinosPrincipales.any { it.ruta == rutaActual } ||
             rutaActual == Rutas.REGISTRAR ||
+            rutaActual == Rutas.EDITAR ||
             rutaActual == Rutas.NUEVA_CONVOCATORIA ||
             rutaActual?.startsWith("detalle/") == true
 
